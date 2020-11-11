@@ -142,6 +142,14 @@ class UsersProfile(models.Model):
 #### 4.2.6 注意问题
 1. 注意个别客户端请求需要添加 token 传回服务器端，否则异
 常
+2. 如何保证同时只有一个客户端使用
+>1.在用户表中添加字段logtime DatetimeField
+
+>2.用户登录时候，把logtime字段更新为登录时间，生成token时候，私有声明里添加logtime
+
+>3.用户再另一个客户端登录时候，检查token中的logtime是否与用户表的一致，
+
+>>如果不相等，则返回用户重新登录，更新用户表登录时间，签发新的token。
 
       
       

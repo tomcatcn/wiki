@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from wtoken.views import check_token
 from users.models import UsersProfile
 
-# 装饰器，检验请求类型
+# 装饰器，检验指定请求类型
 def logging_check(*methods):
     def check_method(func):
         def wrapper(request,username=None,*args,**kwargs):

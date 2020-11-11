@@ -18,11 +18,49 @@ def organize_message(topic):
         d['content'] = message.content
         d['publisher'] = message.publisher.username
         d['publisher_avatar'] = str(message.publisher.avatar)
-        d['reply'] = []
         d['created_time'] = message.created_time.strftime('%y-%m-%d %H:%M:%S')
+        d['parent_id'] = message.parent_message
         list_data.append(d)
+    # print(list_data)
+    # 开始根据父id分类
+    p_list =[]
+    home = {}
+    for m in list_data:
+        # 父元素聚成一起
+        if m['parent_id'] == 0:
+            d = {}
+            d['id'] = m['id']
+            d['content'] = m['content']
+            d['publisher'] = m['publisher']
+            d['publisher_avatar'] = m['publisher_avatar']
+            d['created_time'] = m['created_time']
+            d['reply'] = []
+            p_list.append(d)
+        # 子元素都聚在一起
+        else:
+            p_id = m['parent_id']
+            d = {}
+            d['publisher'] = m['publisher']
+            d['publisher_avatar'] = m['publisher_avatar']
+            d['created_time'] = m['created_time']
+            d['content'] = m['content']
+            d['msg_id'] = m['id']
+            # home 里面没有父元素key就创建一个key,并把这个子元素放进去
+            if p_id not in home:
+                home[p_id] = []
+                home[p_id].append(d)
+            # 把子元素都放入这个值里面
+            else:
 
-    return list_data,len(messages)
+                home[p_id].append(d)
+    # 把父和子集合，一一对应
+    for p in p_list:
+        if p['id'] in home:
+            p['reply'] = home[p['id']]
+            p['reply'].reverse()
+
+
+    return p_list,len(messages)
 
 
 def topics_view(request,username=None):
@@ -140,7 +178,7 @@ def topics_view(request,username=None):
                         last_id = last_topic.id
                         last_title = last_topic.title
                     message_data,message_count = organize_message(topic)
-                    print(message_data)
+                    # print(message_data)
                     topic_data = {
                         'nickname':topic.author.nickname,
                         'title':topic.title,
@@ -178,6 +216,8 @@ def topics_view(request,username=None):
                     if last_topic:
                         last_id = last_topic.id
                         last_title = last_topic.title
+                    message_data,message_count = organize_message(topic)
+
                     topic_data = {
                         'nickname': topic.author.nickname,
                         'title': topic.title,
@@ -190,8 +230,8 @@ def topics_view(request,username=None):
                         'next_title': next_title,
                         'last_id': last_id,
                         'last_title': last_title,
-                        'message': [],
-                        'messages_count': 0,
+                        'messages': message_data,
+                        'messages_count': message_count,
                     }
                     return JsonResponse({'code': 200, 'data': topic_data})
         # 无查询字符串
