@@ -44,7 +44,8 @@ def photos_view(request,username=None):
             # 返回相册所有图片
             # 处理相册没有创建的情况
             try:
-                photos = user.photos_set.get(id=request.GET['photos_id'])
+                photos = Photos.objects.get(id=request.GET['photos_id'])
+                print(photos,request.GET['photos_id'])
             except Exception as e:
                 print(e)
                 return JsonResponse({'code': 700102, 'error': 'please create photos'})
@@ -53,7 +54,7 @@ def photos_view(request,username=None):
 
                 # 相册无图片,返回的数据类型
                 if not photos.photo_set.all():
-                    return JsonResponse({'code':700102,'username':username,'photos_id':request.GET['photos_id'],'photos_name':photos.photos_name,'data':[]})
+                    return JsonResponse({'code':200,'username':username,'photos_id':request.GET['photos_id'],'photos_name':photos.photos_name,'data':[]})
                 # 有图片 组织数据
                 data = []
                 for p in photos.photo_set.all():
@@ -130,25 +131,55 @@ def photos_view(request,username=None):
         photos_id = request_data['photos_id']
         # 创建失败返回的错误类型
         try:
-            photos = Photos.objects.get(photos_id=photos_id)
+            photos = Photos.objects.get(id=photos_id)
         except Exception as e:
             print(e)
             return JsonResponse({'code':700125,'error':'Change failed'})
         photos.photos_name = photos_name
+        photos.save()
         return JsonResponse({'code': 200, 'data': 'Change success'})
 
     # DELETE请求，删除资源
     if request.method == 'DELETE':
-        photos_id = request.GET['photos_id']
+        # 删除相册
+        if 'photos_id' in request.GET and 'photo_id' not in request.GET:
+            photos_id = request.GET['photos_id']
 
-        # 创建失败返回的错误类型
-        try:
-            photos = Photos.objects.get(id=photos_id)
-        except Exception as e:
-            print(e)
-            return JsonResponse({'code': 700125, 'error': 'Change failed'})
-        photos.delete()
-        return JsonResponse({'code': 200, 'data': 'Delete success'})
+            # 查找失败返回的错误类型
+            try:
+                photos = Photos.objects.get(id=photos_id)
+            except Exception as e:
+                print(e)
+                return JsonResponse({'code': 700125, 'error': 'Change failed'})
+            photos.delete()
+            return JsonResponse({'code': 200, 'data': 'Delete success'})
+        # 删除具体某一张图片
+        if 'photos_id' in request.GET and 'photo_id'  in request.GET:
+            photo_id = request.GET['photo_id']
+            # 查找失败返回的错误类型
+            try:
+                photo = Photo.objects.get(id=photo_id)
+            except Exception as e:
+                print(e)
+                return JsonResponse({'code': 700125, 'error': 'Change failed'})
+            photo.delete()
+            return JsonResponse({'code': 200, 'data': 'Delete success'})
+
+
+# 图片上传接口，单独使用一个视图，方便提取数据
+@logging_check('POST')
+def upload_view(request,username=None):
+    # 只允许post方法
+    if request.method != 'POST':
+        data = {'code':'700160','error':'Please use method'}
+        return JsonResponse(data)
+    photos_id = request.GET['photos_id']
+    photos = Photos.objects.get(id=photos_id)
+    photo = Photo.objects.create(photos=photos)
+    photo.photo_url = request.FILES['picture']
+    photo.save()
+    data = {'code': 200, 'username': username}
+    return JsonResponse(data)
 
 
 

@@ -365,19 +365,35 @@ class Message(models.Model):
 -----|----|----
 700130|空提交|xxxx
 
-#### 7.2.4 删除文章接口
+#### 7.2.4 删除相册接口
 - URL:- URL:http://127.0.0.1:8000/api/v1/photos/<username>?photos_id=1111
 - 请求方式 DELETE 
 - 请求格式 
 >该请求需客户端在 HTTP header 里添加 token, 格式如：Authorization ： token 
 
->http://127.0.0.1:8000/v1/topcis/<username> 地址后方添加查询字符串 t_id , 值为具体博客文章的 id
+>http://127.0.0.1:8000/api/v1/photos/<username> 地址后方添加查询字符串photos_i , 值为具体相册的id,如果加上photo_id就是删除具体的哪一张图片
 - 响应格式
 >{‘code’: 200 , ‘username’: ‘abc’, }
 - 异常码
 >异常码|含义|备注
 -----|----|----
 300107|文章不存在|xxxx
+
+#### 7.2.5 上传图片接口
+- URL:- URL:http://127.0.0.1:8000/api/v1/photos/<username>/picture?photos_id=1245
+- 请求方式 POST multipart/form-data
+- 请求格式 json
+>该请求需客户端在 HTTP header 里添加 token, 格式如：Authorization ： token 
+
+>http://127.0.0.1:8000/v1/photos/<username>/picture?photos_id=1245 地址后方添加查询字符串photos_id , 值为具体相册的 id
+
+> {‘picture’:表单中图片的名字}
+- 响应格式
+>{‘code’: 200 , ‘username’: ‘abc’, }
+- 异常码
+>异常码|含义|备注
+-----|----|----
+700107|相册不存在|xxxx
 
 
 

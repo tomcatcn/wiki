@@ -69,9 +69,7 @@ def topics_view(request,username=None):
         # /api/v1/tom?category=tec|no-tec - tom 的技术文章和非技术
         author = UsersProfile.objects.get(username=username)
         visitor_username = get_user_by_request(request)
-        # 规避大小写问题
-        visitor_username = visitor_username.lower()
-        username = username.lower()
+
         if not author:
             data = {'code': 30104, 'error': 'The author is not existed'}
             return JsonResponse(data)
