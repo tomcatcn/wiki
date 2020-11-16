@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'b3x585o8x8%td3wyor@bjx8dx89r46enfusf7mkp1wu5drfx!('
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'topics',
     # 'messages',
     'message',
+    'photos',
 ]
 
 MIDDLEWARE = [
@@ -127,7 +128,8 @@ USE_L10N = True
 USE_TZ = False
 
 
-# Static files (CSS, JavaScript, Images)
+# Static files (CSS, JavaScript, Images),只有在runserver 命令时候，这个静态
+# 路径才有效
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'

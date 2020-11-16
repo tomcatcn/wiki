@@ -17,14 +17,17 @@ def logging_check(*methods):
             else:
                 # 取出token
                 token = request.META.get('HTTP_AUTHORIZATION')
+                print(token)
                 # 没有令牌
                 if not token:
                     data = {'code':20102,'error':'Please login'}
                     return JsonResponse(data)
                 # 检查令牌
                 if check_token(token,username):
+                    print('成功响应')
                     return func(request,username,*args,**kwargs)
                 else:
+
                     data = {'code':20106,'error':'maybe the expire time have gone please relogin'}
                     return JsonResponse(data)
         return wrapper

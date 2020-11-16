@@ -18,10 +18,12 @@ class UsersProfile(models.Model):
     isActived = models.BooleanField('激活',default=True)
     # upload_to 指定位置存储位置 MEDIA_ROOT + upload_to 的值
     avatar = models.ImageField('头像',upload_to='avatar',default='')
+    # 测试字段
+    score = models.IntegerField('分数',null=True,default=0)
 
     class Meta:
         db_table = 'user_profile'
 
     def __str__(self):
-        return '<用户:>'.format(self.username)
+        return '<用户:{}>'.format(self.username)
 

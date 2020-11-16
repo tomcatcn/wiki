@@ -26,6 +26,7 @@ urlpatterns = [
     url(r'^api/v1/tokens',include('wtoken.urls')),
     url(r'^api/v1/topics',include('topics.urls')),
     url(r'^api/v1/messages',include('message.urls')),
+    url(r'^api/v1/photos',include('photos.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URI,document_root=settings.MEDIA_ROOT)

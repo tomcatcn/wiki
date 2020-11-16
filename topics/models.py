@@ -2,6 +2,7 @@ from django.db import models
 from users.models import UsersProfile
 # Create your models here.
 
+# TODO:增加阅读数，点赞功能
 class Topic(models.Model):
     title = models.CharField('文章标题',max_length=60)
     category = models.CharField('文章分类',max_length=20)

@@ -20,6 +20,7 @@
 
 留言模块|负责处理留言数据|
 评论模块|负责处理评论数据|
+相册模块|负责处理相册数据|
 
 ## 二、开发规范
 1. 后端环境
@@ -39,6 +40,8 @@ json
 ### 3.1 token
 
 ### 3.2 CORS
+
+### 3.3 redis分布式锁
 
 ## 四、用户模块
 ### 4.1 数据库结构
@@ -249,6 +252,22 @@ class UsersProfile(models.Model):
 
 ## 六、留言模块
 ### 6.1数据结构
+```python
+class Message(models.Model):
+    content = models.CharField('留言内容',max_length=100)
+    created_time = models.DateTimeField('留言创建时间',auto_now_add=True)
+    parent_message = models.IntegerField('留言父ID',default=0)
+    # 外建关联用户
+    publisher = models.ForeignKey(UsersProfile)
+    # 外建关联文章
+    topic = models.ForeignKey(Topic)
+
+    class Meta:
+        db_table = 'message'
+
+    def __str__(self):
+        return '<留言：{}>'.format(self.content)
+```
 
 #### 6.2.1 发表文章留言接口
 - URL:- URL:http://127.0.0.1:8000/api/v1/messages/<topic_id>
@@ -263,6 +282,103 @@ class UsersProfile(models.Model):
 >异常码|含义|备注
 -----|----|----
 400107|留言为空|xxxx
+
+## 七、相册模块
+### 7.1数据结构
+
+#### 7.2.1 获取相册接口
+- URL:- URL:http://127.0.0.1:8000/api/v1/photos/<username>?photos_id=2
+- 请求方式 GET
+- 请求格式 
+>该请求不加参数，返回用户所有的相册信息
+
+>http://127.0.0.1:8000/api/v1/photos/<username>?photos_id=2地址后方添加查询字符串 photos_id , 值为具体相册的id，返回该相册所有图片
+>http://127.0.0.1:8000/api/v1/photos/<username>?photos_id=2&photo_id=15地址后方添加查询字符串 ,返回photo_id的图片
+- 响应格式
+>返回相册列表
+```json
+{‘code’: 200 , 
+   ‘username’:'abc',
+    ‘data’: [
+            {'photos_id':2,'photos_name':'abc','photos_cover':'http://xxxx'},
+            {'photos_id':3,'photos_name':'cbd','photos_cover':'http://xxxx'},
+            {'photos_id':4,'photos_name':'efg','photos_cover':'http://xxxx'},
+             ], 
+}
+```
+>返回相册所有图片
+```json
+{‘code’: 200 , 
+   ‘username’:'abc',
+    'photos_id':1,
+    'photos_name':'abcd',
+    ‘data’: [
+             {'photo_id':2,'photo_url':'http:xxxxxx'},
+             {'photo_id':3,'photo_url':'http:xxxxxx'},
+             {'photo_id':4,'photo_url':'http:xxxxxx'},
+             ], 
+}
+```
+>返回具体某一张图片
+```json
+{‘code’: 200 , 
+   'username':'abc',
+    'photos_id':1,
+    'photos_name':'abcd',
+    'data': [
+            {'photo_id':2,'photo_url':'http:xxxxxx'},
+            {'next_photo_id':null,'photo_url':''},
+            {'last_photo_id':null,'photo_url':''},
+             ], 
+}
+```
+- 异常码
+>异常码|含义|备注
+-----|----|----
+700101|留言为空|xxxx
+
+#### 7.2.2 创建相册接口
+- URL:- URL:http://127.0.0.1:8000/api/v1/photos/<username>
+- 请求方式 POST
+- 请求格式 json
+```json
+{'photos_name':'asdfgc','username':'abcd'}
+```
+- 响应格式
+>{‘code’: 200 , 'photos_id':2 ,‘data’: ‘’, }
+- 异常码
+>异常码|含义|备注
+-----|----|----
+700107|创建失败|xxxx
+
+#### 7.2.3 修改个人相册接口
+- URL:http://127.0.0.1:8000/api/v1/photos/<username>
+- 请求方式 PUT
+- 请求格式 json
+>  该请求需客户端在 HTTP header 里添加 token, 格式如：Authorization ： token
+
+> {‘photos_name’:xxx, ‘photos_id’:6}
+- 响应格式 json
+>{‘code’:200, ‘username’:’char’}
+- 异常码
+>异常码|含义|备注
+-----|----|----
+700130|空提交|xxxx
+
+#### 7.2.4 删除文章接口
+- URL:- URL:http://127.0.0.1:8000/api/v1/photos/<username>?photos_id=1111
+- 请求方式 DELETE 
+- 请求格式 
+>该请求需客户端在 HTTP header 里添加 token, 格式如：Authorization ： token 
+
+>http://127.0.0.1:8000/v1/topcis/<username> 地址后方添加查询字符串 t_id , 值为具体博客文章的 id
+- 响应格式
+>{‘code’: 200 , ‘username’: ‘abc’, }
+- 异常码
+>异常码|含义|备注
+-----|----|----
+300107|文章不存在|xxxx
+
 
 
 
