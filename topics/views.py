@@ -321,3 +321,23 @@ def topics_view(request,username=None):
             return JsonResponse({'code':30109,'erroe':'Delete failed,try again'})
         return JsonResponse({'code':200,'username':username})
 
+def all_topics(request):
+    # 返回所有公共文章
+    topics = Topic.objects.filter(limit='public')
+    topics_list = []
+    print(len(topics))
+    # 组织数据
+    for topic in topics:
+        d = {}
+        d['id'] = topic.id
+        d['title'] = topic.title
+        d['category'] = topic.category
+        # 把datetime类型转化为字符串
+        d['created_time'] = topic.created_time.strftime('%Y-%m-%d %H:%M:%S')
+        d['introduce'] = topic.introduce
+        print(topic.author.nickname)
+        d['author'] = topic.author.nickname
+        d['username'] = topic.author.username
+        topics_list.append(d)
+    data = {'code': '200', 'data': {'nickname': '未知', 'topics': topics_list}}
+    return JsonResponse(data)
